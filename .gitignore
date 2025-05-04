@@ -1,0 +1,6 @@
+errored.tfstate
+terraform.tfstate
+LICENSE.txt
+terraform-provider-aws*
+*terraform.lock.hcl
+.terraform.lock.hcl

@@ -59,9 +59,9 @@ resource "aws_lb" "webserver_load_balancer" {
 
 resource "aws_lb_target_group" "webserver_target_group" {
   name = "lb-target-group"
-  target_type = "alb"
+  target_type = "instance"
   port = "80"
-  protocol = "TCP"
+  protocol = "HTTP"
   vpc_id = aws_vpc.main_vpc.id
 }
 
@@ -72,7 +72,16 @@ resource "aws_lb_target_group_attachment" "webserver" {
   port              = "80"
 }
 
+resource "aws_lb_listener" "webserver_listener" {
+  load_balancer_arn = aws_lb.webserver_load_balancer.arn
+  port              = 80
+  protocol          = "HTTP"
 
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.webserver_target_group.arn
+  }
+}
 
 resource "aws_security_group" "webserver_instances_sg" {
   name              = "webserver_instances_sg"
@@ -82,6 +91,12 @@ resource "aws_security_group" "webserver_instances_sg" {
     to_port         = 80
     protocol        = "tcp"
     security_groups = [ aws_security_group.load_balancer_sg.id ]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
@@ -94,6 +109,13 @@ resource "aws_security_group" "load_balancer_sg" {
     protocol        = "tcp"
     cidr_blocks     = ["0.0.0.0/0"]
   }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
+
 
 

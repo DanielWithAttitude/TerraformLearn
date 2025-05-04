@@ -30,9 +30,46 @@ resource "aws_instance" "webserver" {
                     EOF
   )
   tags = {
-    Name = "WebServer + $(count.index)"
+    Name = "WebServer"
   }
 }
+
+resource "aws_lb" "webserver_load_balancer" {
+    name = "webserver-lb"
+    internal = false
+    load_balancer_type = "application"
+    security_groups = [ aws_security_group.load_balancer_sg.id ]
+    subnets = [ aws_subnet.public_subnet.id ]
+
+    enable_deletion_protection = true
+
+    access_logs {
+      bucket = aws_s3_bucket.terraform_state.id
+      prefix = "webserver-lb-access-log"
+      enabled = true
+    }
+
+    tags = {
+      Environment = "learning"
+    }
+}
+
+resource "aws_lb_target_group" "webserver_target_group" {
+  name = "lb-target-group"
+  target_type = "alb"
+  port = "80"
+  protocol = "TCP"
+  vpc_id = aws_vpc.main_vpc.id
+}
+
+resource "aws_lb_target_group_attachment" "webserver" {
+  count = 2
+  target_group_arn  = "${aws_lb_target_group.webserver_target_group.arn}"
+  target_id         = "${aws_instance.webserver[count.index].id}"
+  port              = "80"
+}
+
+
 
 resource "aws_security_group" "webserver_instances_sg" {
   name              = "webserver_instances_sg"

@@ -60,7 +60,7 @@ resource "aws_lb" "webserver_load_balancer" {
         aws_subnet.public_subnet_az2.id
      ]
 
-    enable_deletion_protection = true
+    enable_deletion_protection = false
 
     access_logs {
       bucket = var.log_bucket_name

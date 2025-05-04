@@ -1,11 +1,11 @@
 terraform {
-  # backend "s3" {
-  #   bucket         = "terraform-learn-tf-state" # REPLACE WITH YOUR BUCKET NAME
-  #   key            = "03-basics/import-bootstrap/terraform.tfstate"
-  #   region         = "eu-north-1"
-  #   dynamodb_table = "terraform-state-locking"
-  #   encrypt        = true
-  # }
+   backend "s3" {
+     bucket         = "terraform-learn-tf-state-daniel" # REPLACE WITH YOUR BUCKET NAME
+     key            = "03-basics/import-bootstrap/terraform.tfstate"
+     region         = "eu-north-1"
+     dynamodb_table = "terraform-state-locking"
+     encrypt        = true
+   }
 }
 
 resource "aws_s3_bucket" "terraform_state" {

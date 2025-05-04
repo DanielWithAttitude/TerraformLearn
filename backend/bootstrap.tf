@@ -1,6 +1,6 @@
 resource "aws_s3_bucket" "terraform_state" {
   bucket        = "terraform-learn-tf-state-daniel"
-  force_destroy = true
+  force_destroy = false
 }
 
 resource "aws_s3_bucket_versioning" "terraform_bucket_versioning" {

@@ -2,17 +2,39 @@ terraform {
   required_providers {
     aws = {
         source = "hashicorp/aws"
-        version = "~> 3.0"
+        version = "~> 5.0"
     }
   }
+  backend "s3" {
+     bucket         = "terraform-learn-tf-state-daniel" 
+     key            = "03-basics/import-bootstrap/terraform.tfstate"
+     region         = "eu-north-1"
+     dynamodb_table = "terraform-state-locking"
+     encrypt        = true
+   }
 }
 
 provider "aws" {
   region = "eu-north-1"
 }
 
+resource "aws_s3_bucket_policy" "alb_log_policy" {
+  bucket = aws_s3_bucket.terraform_state.bucket
 
-
+  policy = jsonencode({
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "logdelivery.elasticloadbalancing.amazonaws.com"
+      },
+      "Action": "s3:PutObject",
+      "Resource": "arn:aws:s3:::${aws_s3_bucket.terraform_state.bucket}/webserver-lb-access-log/AWSLogs/831645032308/*"
+    }
+  ]
+})
+}
 
 resource "aws_instance" "webserver" {
   count             = 2

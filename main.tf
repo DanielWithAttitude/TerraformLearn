@@ -19,7 +19,7 @@ resource "aws_instance" "webserver" {
   ami               = var.instance_ami
   instance_type     = var.instance_ec2_type
   vpc_security_group_ids = [ aws_security_group.webserver_instances_sg.id ]
-  subnet_id         = aws_subnet.public_subnet.id 
+  subnet_id         = aws_subnet.public_subnet_az1.id
   user_data         = base64encode(<<-EOF
                     #!/bin/bash
                     yum update -y
@@ -39,7 +39,10 @@ resource "aws_lb" "webserver_load_balancer" {
     internal = false
     load_balancer_type = "application"
     security_groups = [ aws_security_group.load_balancer_sg.id ]
-    subnets = [ aws_subnet.public_subnet.id ]
+    subnets = [
+        aws_subnet.public_subnet_az1.id,
+        aws_subnet.public_subnet_az2.id
+     ]
 
     enable_deletion_protection = true
 
